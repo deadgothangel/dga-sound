@@ -3,49 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DGA SOUND — Music Evaluation</title>
+  <title>DGA SOUND — Music Evaluation Platform</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
-    body {
-      background: #0d0b12;
-      background: radial-gradient(circle at 50% 0%, #2a0845 0%, #0d0b12 75%);
-      color: #ffffff;
-      min-height: 100vh;
-      padding: 30px;
+    
+    :root {
+      --bg-color: #0d0b12;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent: #a855f7;
+      --text-main: #ffffff;
+      --text-sub: #a1a1aa;
     }
+
+    body {
+      background: var(--bg-color);
+      background: radial-gradient(circle at 50% 0%, #2a0845 0%, #0d0b12 75%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    /* Стрим-мод (увеличенные шрифты для трансляций) */
+    body.stream-mode {
+      font-size: 18px;
+    }
+    body.stream-mode .score-num { font-size: 96px !important; }
+    body.stream-mode label { font-size: 18px !important; }
+
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      max-width: 1000px;
-      margin: 0 auto 40px auto;
+      max-width: 1100px;
+      margin: 0 auto 30px auto;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
     }
+
     .logo {
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 900;
       letter-spacing: 3px;
       background: linear-gradient(90deg, #fff, #c084fc);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    nav a { color: #a1a1aa; text-decoration: none; margin-left: 20px; font-size: 14px; font-weight: 500; transition: 0.3s; }
+
+    nav { display: flex; align-items: center; gap: 15px; }
+    nav a { color: var(--text-sub); text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.3s; }
     nav a.active, nav a:hover { color: #fff; }
     .badge-lock { opacity: 0.4; cursor: not-allowed; }
 
-    .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
-    
+    .btn-action {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: 0.3s;
+    }
+    .btn-action:hover { border-color: var(--accent); }
+
+    .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+
     .card {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
       border-radius: 20px;
-      padding: 28px;
+      padding: 24px;
+      margin-bottom: 20px;
     }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
     
+    .slider-group { position: relative; }
     label { display: flex; justify-content: space-between; font-size: 14px; color: #d4d4d8; margin-bottom: 8px; }
     .val-tag { color: #c084fc; font-weight: bold; }
+
+    /* Всплывающие подсказки (Tooltip) */
+    .tooltip {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      background: #18181b;
+      border: 1px solid var(--accent);
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      color: #ccc;
+      z-index: 10;
+      width: 200px;
+    }
+    .slider-group:hover .tooltip { display: block; }
 
     input[type=range] {
       width: 100%;
@@ -53,7 +109,7 @@
       border-radius: 5px;
       background: rgba(255, 255, 255, 0.1);
       outline: none;
-      accent-color: #a855f7;
+      accent-color: var(--accent);
       cursor: pointer;
     }
 
@@ -61,30 +117,70 @@
       background: rgba(168, 85, 247, 0.05);
       border: 1px solid rgba(168, 85, 247, 0.2);
       border-radius: 16px;
-      padding: 20px;
-      margin-top: 20px;
+      padding: 18px;
+      margin-bottom: 20px;
     }
 
-    .tags-box { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .tags-box { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
     .tag-btn {
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
       color: #aaa;
-      padding: 8px 14px;
+      padding: 8px 12px;
       border-radius: 10px;
       font-size: 12px;
       cursor: pointer;
       transition: 0.3s;
     }
-    .tag-btn.active {
-      background: rgba(168, 85, 247, 0.2);
-      border-color: #a855f7;
+    .tag-btn.active { background: rgba(168, 85, 247, 0.2); border-color: var(--accent); color: #fff; }
+
+    .score-sidebar { text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+    .score-num { font-size: 72px; font-weight: 900; color: var(--accent); text-shadow: 0 0 25px rgba(168, 85, 247, 0.4); }
+
+    .save-btn {
+      width: 100%;
+      background: linear-gradient(90deg, #a855f7, #7e22ce);
       color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+      transition: 0.3s;
+    }
+    .save-btn:hover { opacity: 0.9; }
+
+    /* Поиск и список оценок в стиле РЗТ */
+    .search-bar {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      padding: 10px 16px;
+      border-radius: 12px;
+      color: #fff;
+      outline: none;
+      margin-bottom: 20px;
     }
 
-    .score-sidebar { text-align: center; display: flex; flex-direction: column; justify-content: center; }
-    .score-num { font-size: 72px; font-weight: 900; color: #a855f7; text-shadow: 0 0 25px rgba(168, 85, 247, 0.4); }
-    .score-max { font-size: 18px; color: #71717a; }
+    .release-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .release-card:hover { border-color: var(--accent); background: rgba(168, 85, 247, 0.05); }
+    .release-cover { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #222; }
+    .release-info { flex-grow: 1; }
+    .release-title { font-weight: 700; font-size: 15px; }
+    .release-artist { font-size: 13px; color: var(--text-sub); }
+    .release-score { font-size: 22px; font-weight: 900; color: var(--accent); }
   </style>
 </head>
 <body>
@@ -95,53 +191,99 @@
       <a href="#" class="active">РЕЛИЗЫ</a>
       <a href="#">ДЕМО</a>
       <a href="#">ЧАРТ</a>
-      <a href="#" class="badge-lock">АЛЬБОМЫ 🔒</a>
+      <a href="#" class="badge-lock" title="Откроется при 500 подписчиках">АЛЬБОМЫ 🔒</a>
+      <button class="btn-action" onclick="toggleStreamMode()">📺 Стрим-мод</button>
     </nav>
   </header>
 
   <div class="container">
-    <div class="card">
-      <h2 style="margin-bottom: 20px; font-size: 20px;">Оценка трека</h2>
+    <div>
+      <!-- Калькулятор Оценки -->
+      <div class="card" id="eval-card">
+        <h2 style="margin-bottom: 15px; font-size: 18px;">Оценка трека</h2>
+
+        <div style="margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <input type="text" id="track-artist" placeholder="Исполнитель" class="search-bar" style="margin: 0;">
+          <input type="text" id="track-title" placeholder="Название трека" class="search-bar" style="margin: 0;">
+        </div>
+
+        <div class="grid-2">
+          <div class="slider-group">
+            <div class="tooltip">Оценка качества текста, построения рифм и образов</div>
+            <label>Рифмы / Образы <span class="val-tag" id="v1">5.0</span></label>
+            <input type="range" id="r1" min="0" max="10" step="0.5" value="5" oninput="calc()">
+          </div>
+          <div class="slider-group">
+            <div class="tooltip">Построение куплета/припева, разнообразие ритмики</div>
+            <label>Структура / Ритмика <span class="val-tag" id="v2">5.0</span></label>
+            <input type="range" id="r2" min="0" max="10" step="0.5" value="5" oninput="calc()">
+          </div>
+          <div class="slider-group">
+            <div class="tooltip">Качество сведения, вокал, работа с битом</div>
+            <label>Реализация стиля <span class="val-tag" id="v3">5.0</span></label>
+            <input type="range" id="r3" min="0" max="10" step="0.5" value="5" oninput="calc()">
+          </div>
+          <div class="slider-group">
+            <div class="tooltip">Узнаваемость артиста, подача, харизма</div>
+            <label>Индивидуальность / Харизма <span class="val-tag" id="v4">5.0</span></label>
+            <input type="range" id="r4" min="0" max="10" step="0.5" value="5" oninput="calc()">
+          </div>
+        </div>
+
+        <div class="vibe-box slider-group">
+          <div class="tooltip">Субъективное восприятие и вайб трека</div>
+          <label>Атмосфера / Вайб <span class="val-tag" id="v5">2.50</span></label>
+          <input type="range" id="r5" min="0" max="5" step="0.25" value="2.5" oninput="calc()">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="tags-box" style="margin: 0;">
+            <button class="tag-btn" onclick="this.classList.toggle('active')">🏆 Трек месяца</button>
+            <button class="tag-btn" onclick="this.classList.toggle('active')">🎨 Обложка месяца</button>
+          </div>
+          <label style="margin: 0; cursor: pointer;">
+            <input type="checkbox" id="disqual" onchange="toggleDisqual()"> 🚫 Дисквал
+          </label>
+        </div>
+      </div>
+
+      <!-- Лента Релизов (Поиск и Список) -->
+      <input type="text" id="search" class="search-bar" placeholder="Поиск по оценочной базе..." oninput="filterReleases()">
       
-      <div class="grid-2">
-        <div>
-          <label>Рифмы / Образы <span class="val-tag" id="v1">5.0</span></label>
-          <input type="range" id="r1" min="0" max="10" step="0.5" value="5" oninput="calc()">
+      <div id="releases-list">
+        <!-- Пример карточки в стиле РЗТ -->
+        <div class="release-card">
+          <div class="release-cover"></div>
+          <div class="release-info">
+            <div class="release-title">Пример трека</div>
+            <div class="release-artist">deadgothangel</div>
+          </div>
+          <div class="release-score">90.0</div>
         </div>
-        <div>
-          <label>Структура / Ритмика <span class="val-tag" id="v2">5.0</span></label>
-          <input type="range" id="r2" min="0" max="10" step="0.5" value="5" oninput="calc()">
-        </div>
-        <div>
-          <label>Реализация стиля <span class="val-tag" id="v3">5.0</span></label>
-          <input type="range" id="r3" min="0" max="10" step="0.5" value="5" oninput="calc()">
-        </div>
-        <div>
-          <label>Индивидуальность / Харизма <span class="val-tag" id="v4">5.0</span></label>
-          <input type="range" id="r4" min="0" max="10" step="0.5" value="5" oninput="calc()">
-        </div>
-      </div>
-
-      <div class="vibe-box">
-        <label>Атмосфера / Вайб <span class="val-tag" id="v5">2.5</span></label>
-        <input type="range" id="r5" min="0" max="5" step="0.25" value="2.5" oninput="calc()">
-      </div>
-
-      <div class="tags-box">
-        <button class="tag-btn" onclick="this.classList.toggle('active')">🏆 Трек месяца</button>
-        <button class="tag-btn" onclick="this.classList.toggle('active')">🎨 Обложка месяца</button>
-        <button class="tag-btn" onclick="this.classList.toggle('active')">💎 Потенциальный хит</button>
       </div>
     </div>
 
+    <!-- Боковая панель (Финальный балл + Действия) -->
     <div class="card score-sidebar">
-      <div style="font-size: 14px; color: #a1a1aa;">Итоговый балл</div>
-      <div class="score-num" id="total">50.0</div>
-      <div class="score-max">из 100</div>
+      <div>
+        <div style="font-size: 14px; color: var(--text-sub); margin-bottom: 10px;">Итоговый балл</div>
+        <div class="score-num" id="total">50.0</div>
+        <div style="font-size: 14px; color: #71717a;">из 100</div>
+      </div>
+
+      <div>
+        <button class="save-btn" onclick="saveRelease()">Опубликовать оценку</button>
+      </div>
     </div>
   </div>
 
   <script>
+    // Подключение к Supabase (Сюда вставишь свои ключи)
+    const SUPABASE_URL = "https://your-project.supabase.co";
+    const SUPABASE_KEY = "your-anon-key";
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Автосохранение ползунков
     function calc() {
       let r1 = parseFloat(document.getElementById('r1').value);
       let r2 = parseFloat(document.getElementById('r2').value);
@@ -157,6 +299,52 @@
 
       let total = (r1 * 2) + (r2 * 2) + (r3 * 2) + (r4 * 2) + (r5 * 4);
       document.getElementById('total').innerText = total.toFixed(1);
+
+      // Сохраняем стейт в браузер
+      localStorage.setItem('dga_eval_state', JSON.stringify({ r1, r2, r3, r4, r5 }));
+    }
+
+    function toggleDisqual() {
+      let isDisq = document.getElementById('disqual').checked;
+      if (isDisq) {
+        document.getElementById('total').innerText = "0.0";
+        document.getElementById('eval-card').style.opacity = "0.4";
+      } else {
+        document.getElementById('eval-card').style.opacity = "1";
+        calc();
+      }
+    }
+
+    function toggleStreamMode() {
+      document.body.classList.toggle('stream-mode');
+    }
+
+    // Восстановление ползунков при загрузке
+    window.onload = () => {
+      let saved = localStorage.getItem('dga_eval_state');
+      if (saved) {
+        let { r1, r2, r3, r4, r5 } = JSON.parse(saved);
+        document.getElementById('r1').value = r1;
+        document.getElementById('r2').value = r2;
+        document.getElementById('r3').value = r3;
+        document.getElementById('r4').value = r4;
+        document.getElementById('r5').value = r5;
+        calc();
+      }
+    };
+
+    async function saveRelease() {
+      let artist = document.getElementById('track-artist').value;
+      let title = document.getElementById('track-title').value;
+      let total = document.getElementById('total').innerText;
+
+      if (!artist || !title) {
+        alert("Заполните артиста и название трека!");
+        return;
+      }
+
+      alert(`Оценка трека "${artist} — ${title}" (${total} баллов) сохранена!`);
+      // Тут логика отправки в Supabase и уведомления боту
     }
   </script>
 </body>
