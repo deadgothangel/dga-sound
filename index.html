@@ -3,42 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DGA SOUND</title>
+  <title>DGA SOUND — Music Evaluation</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
     body {
       background: #0d0b12;
-      background: radial-gradient(circle at 50% 20%, #2e1065 0%, #0d0b12 70%);
+      background: radial-gradient(circle at 50% 0%, #2a0845 0%, #0d0b12 75%);
       color: #ffffff;
       min-height: 100vh;
-      padding: 40px;
+      padding: 30px;
     }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 60px;
+      max-width: 1000px;
+      margin: 0 auto 40px auto;
     }
-    .logo { font-size: 24px; font-weight: 800; letter-spacing: 2px; color: #fff; text-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
-    nav a { color: #a1a1aa; text-decoration: none; margin-left: 25px; font-size: 14px; transition: 0.3s; }
+    .logo {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      background: linear-gradient(90deg, #fff, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    nav a { color: #a1a1aa; text-decoration: none; margin-left: 20px; font-size: 14px; font-weight: 500; transition: 0.3s; }
     nav a.active, nav a:hover { color: #fff; }
-    .disabled { opacity: 0.4; cursor: not-allowed; }
+    .badge-lock { opacity: 0.4; cursor: not-allowed; }
+
+    .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
     
     .card {
       background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(20px);
+      backdrop-filter: blur(25px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 24px;
-      padding: 32px;
-      max-width: 600px;
-      margin: 0 auto;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      border-radius: 20px;
+      padding: 28px;
     }
-    .score-title { font-size: 28px; margin-bottom: 20px; font-weight: 700; }
-    .slider-group { margin-bottom: 20px; }
-    .slider-group label { display: block; font-size: 14px; color: #d4d4d8; margin-bottom: 8px; }
-    input[type=range] { width: 100%; accent-color: #a855f7; }
-    .score-display { text-align: right; font-size: 48px; font-weight: 900; color: #a855f7; margin-top: 20px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    
+    label { display: flex; justify-content: space-between; font-size: 14px; color: #d4d4d8; margin-bottom: 8px; }
+    .val-tag { color: #c084fc; font-weight: bold; }
+
+    input[type=range] {
+      width: 100%;
+      height: 6px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      accent-color: #a855f7;
+      cursor: pointer;
+    }
+
+    .vibe-box {
+      background: rgba(168, 85, 247, 0.05);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .tags-box { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .tag-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #aaa;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .tag-btn.active {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: #a855f7;
+      color: #fff;
+    }
+
+    .score-sidebar { text-align: center; display: flex; flex-direction: column; justify-content: center; }
+    .score-num { font-size: 72px; font-weight: 900; color: #a855f7; text-shadow: 0 0 25px rgba(168, 85, 247, 0.4); }
+    .score-max { font-size: 18px; color: #71717a; }
   </style>
 </head>
 <body>
@@ -49,27 +95,69 @@
       <a href="#" class="active">РЕЛИЗЫ</a>
       <a href="#">ДЕМО</a>
       <a href="#">ЧАРТ</a>
-      <a href="#" class="disabled">АЛЬБОМЫ 🔒 (COMING SOON)</a>
+      <a href="#" class="badge-lock">АЛЬБОМЫ 🔒</a>
     </nav>
   </header>
 
-  <main>
+  <div class="container">
     <div class="card">
-      <div class="score-title">Оценка трека</div>
+      <h2 style="margin-bottom: 20px; font-size: 20px;">Оценка трека</h2>
       
-      <div class="slider-group">
-        <label>Рифмы / Образы</label>
-        <input type="range" min="0" max="10" step="0.5" value="5">
+      <div class="grid-2">
+        <div>
+          <label>Рифмы / Образы <span class="val-tag" id="v1">5.0</span></label>
+          <input type="range" id="r1" min="0" max="10" step="0.5" value="5" oninput="calc()">
+        </div>
+        <div>
+          <label>Структура / Ритмика <span class="val-tag" id="v2">5.0</span></label>
+          <input type="range" id="r2" min="0" max="10" step="0.5" value="5" oninput="calc()">
+        </div>
+        <div>
+          <label>Реализация стиля <span class="val-tag" id="v3">5.0</span></label>
+          <input type="range" id="r3" min="0" max="10" step="0.5" value="5" oninput="calc()">
+        </div>
+        <div>
+          <label>Индивидуальность / Харизма <span class="val-tag" id="v4">5.0</span></label>
+          <input type="range" id="r4" min="0" max="10" step="0.5" value="5" oninput="calc()">
+        </div>
       </div>
 
-      <div class="slider-group">
-        <label>Структура / Ритмика</label>
-        <input type="range" min="0" max="10" step="0.5" value="5">
+      <div class="vibe-box">
+        <label>Атмосфера / Вайб <span class="val-tag" id="v5">2.5</span></label>
+        <input type="range" id="r5" min="0" max="5" step="0.25" value="2.5" oninput="calc()">
       </div>
 
-      <div class="score-display">50.0 / 100</div>
+      <div class="tags-box">
+        <button class="tag-btn" onclick="this.classList.toggle('active')">🏆 Трек месяца</button>
+        <button class="tag-btn" onclick="this.classList.toggle('active')">🎨 Обложка месяца</button>
+        <button class="tag-btn" onclick="this.classList.toggle('active')">💎 Потенциальный хит</button>
+      </div>
     </div>
-  </main>
 
+    <div class="card score-sidebar">
+      <div style="font-size: 14px; color: #a1a1aa;">Итоговый балл</div>
+      <div class="score-num" id="total">50.0</div>
+      <div class="score-max">из 100</div>
+    </div>
+  </div>
+
+  <script>
+    function calc() {
+      let r1 = parseFloat(document.getElementById('r1').value);
+      let r2 = parseFloat(document.getElementById('r2').value);
+      let r3 = parseFloat(document.getElementById('r3').value);
+      let r4 = parseFloat(document.getElementById('r4').value);
+      let r5 = parseFloat(document.getElementById('r5').value);
+
+      document.getElementById('v1').innerText = r1.toFixed(1);
+      document.getElementById('v2').innerText = r2.toFixed(1);
+      document.getElementById('v3').innerText = r3.toFixed(1);
+      document.getElementById('v4').innerText = r4.toFixed(1);
+      document.getElementById('v5').innerText = r5.toFixed(2);
+
+      let total = (r1 * 2) + (r2 * 2) + (r3 * 2) + (r4 * 2) + (r5 * 4);
+      document.getElementById('total').innerText = total.toFixed(1);
+    }
+  </script>
 </body>
 </html>
