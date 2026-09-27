@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DGA SOUND — Official Platform</title>
+  <title>DGA SOUND — Solo Studio</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
     
@@ -13,8 +13,11 @@
       --card-border: rgba(168, 85, 247, 0.15);
       --accent: #a855f7;
       --accent-glow: rgba(168, 85, 247, 0.4);
+      --demo-accent: #06b6d4;
+      --demo-glow: rgba(6, 182, 212, 0.4);
       --text-main: #f4f4f5;
       --text-sub: #a1a1aa;
+      --danger: #ef4444;
     }
 
     body {
@@ -27,9 +30,6 @@
       padding: 20px;
     }
 
-    body.stream-mode { font-size: 18px; }
-    body.stream-mode .score-num { font-size: 105px !important; }
-
     /* Шапка */
     header {
       display: flex;
@@ -38,7 +38,6 @@
       max-width: 1200px;
       margin: 0 auto 30px auto;
       padding: 10px 0;
-      position: relative;
     }
 
     .logo {
@@ -52,7 +51,7 @@
       cursor: pointer;
     }
 
-    nav { display: flex; align-items: center; gap: 15px; }
+    nav { display: flex; align-items: center; gap: 12px; }
     nav button {
       background: none;
       border: none;
@@ -60,8 +59,8 @@
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      padding: 8px 12px;
-      border-radius: 8px;
+      padding: 8px 14px;
+      border-radius: 10px;
       transition: 0.3s;
     }
     nav button.active, nav button:hover {
@@ -69,7 +68,6 @@
       background: rgba(168, 85, 247, 0.15);
       text-shadow: 0 0 10px var(--accent-glow);
     }
-    .badge-lock { opacity: 0.5; cursor: not-allowed; }
 
     .header-right { display: flex; align-items: center; gap: 14px; position: relative; }
     
@@ -82,242 +80,132 @@
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
       transition: 0.3s;
     }
     .btn-feedback:hover { border-color: var(--accent); background: rgba(168, 85, 247, 0.1); }
 
     .avatar-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #111;
-      border: 2px solid var(--accent);
-      cursor: pointer;
-      overflow: hidden;
-      transition: 0.3s;
+      width: 40px; height: 40px; border-radius: 50%; background: #111; border: 2px solid var(--accent); cursor: pointer; overflow: hidden; transition: 0.3s;
     }
     .avatar-btn:hover { box-shadow: 0 0 15px var(--accent-glow); transform: scale(1.05); }
     .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
 
     /* Выпадающее меню профиля */
     .profile-dropdown {
-      display: none;
-      position: absolute;
-      top: 55px;
-      right: 0;
-      width: 260px;
-      background: #120f1a;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-      z-index: 100;
-      backdrop-filter: blur(20px);
+      display: none; position: absolute; top: 55px; right: 0; width: 260px; background: #120f1a; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 16px; padding: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); z-index: 100; backdrop-filter: blur(20px);
     }
     .profile-dropdown.active { display: block; animation: fadeIn 0.2s ease; }
 
     .user-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
     .user-avatar { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--accent); }
     .user-name { font-weight: 700; font-size: 16px; color: #fff; }
-    .user-badge { font-size: 11px; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 10px; color: #aaa; margin-top: 2px; display: inline-block; }
+    .user-badge { font-size: 11px; background: rgba(168,85,247,0.2); padding: 2px 8px; border-radius: 10px; color: var(--accent); margin-top: 2px; display: inline-block; font-weight: 600; }
 
     .menu-divider { height: 1px; background: rgba(255, 255, 255, 0.08); margin: 10px 0; }
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px;
-      color: #d4d4d8;
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: 10px;
-      transition: 0.2s;
-      cursor: pointer;
-    }
+    .menu-item { display: flex; align-items: center; gap: 12px; padding: 10px; color: #d4d4d8; font-size: 14px; font-weight: 500; border-radius: 10px; transition: 0.2s; cursor: pointer; }
     .menu-item:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
 
-    /* Основной контейнер */
+    /* Контейнер */
     .container { max-width: 1200px; margin: 0 auto; }
     .page { display: none; }
     .page.active { display: block; animation: fadeIn 0.3s ease; }
 
-    /* Карточки */
     .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 20px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
 
-    /* Главная страница элементы */
+    /* Главная */
     .hero {
-      background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(15, 10, 25, 0.8));
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 40px;
-      margin-bottom: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(15, 10, 25, 0.8)); border: 1px solid var(--card-border); border-radius: 24px; padding: 36px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;
     }
-    .hero-h1 { font-size: 32px; font-weight: 900; margin-bottom: 10px; }
-    .hero-p { color: var(--text-sub); font-size: 15px; max-width: 500px; margin-bottom: 20px; }
+    .hero-h1 { font-size: 30px; font-weight: 900; margin-bottom: 8px; }
+    .hero-p { color: var(--text-sub); font-size: 14px; max-width: 520px; margin-bottom: 20px; }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-    .stat-card { background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); padding: 20px; border-radius: 16px; text-align: center; }
-    .stat-val { font-size: 28px; font-weight: 900; color: var(--accent); }
-    .stat-lbl { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); padding: 18px; border-radius: 16px; text-align: center; }
+    .stat-val { font-size: 26px; font-weight: 900; color: var(--accent); }
+    .stat-lbl { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
 
-    /* Страница оценки */
+    /* Калькулятор */
+    .type-selector { display: flex; gap: 12px; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 14px; border: 1px solid var(--card-border); }
+    .type-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-sub); font-weight: 700; font-size: 14px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+    .type-btn.active-release { background: rgba(168, 85, 247, 0.25); color: #fff; border: 1px solid var(--accent); }
+    .type-btn.active-demo { background: rgba(6, 182, 212, 0.25); color: #fff; border: 1px solid var(--demo-accent); }
+
     .calc-layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
     
     .slider-group { position: relative; }
     .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    
-    .criterion-title {
-      font-size: 14px;
-      color: #e4e4e7;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .criterion-title:hover { color: var(--accent); }
-    .info-icon { font-size: 12px; color: var(--text-sub); opacity: 0.7; }
-
+    .criterion-title { font-size: 14px; color: #e4e4e7; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
     .val-tag { color: var(--accent); font-weight: 800; font-size: 15px; }
 
-    .annotation-box {
-      display: none;
-      background: rgba(168, 85, 247, 0.08);
-      border-left: 3px solid var(--accent);
-      padding: 8px 12px;
-      border-radius: 0 8px 8px 0;
-      font-size: 12px;
-      color: #d4d4d8;
-      margin-bottom: 10px;
-    }
+    .annotation-box { display: none; background: rgba(168, 85, 247, 0.08); border-left: 3px solid var(--accent); padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 12px; color: #d4d4d8; margin-bottom: 10px; }
     .annotation-box.active { display: block; animation: fadeIn 0.2s ease; }
 
-    input[type=range] {
-      width: 100%;
-      height: 6px;
-      border-radius: 5px;
-      background: rgba(255, 255, 255, 0.1);
-      outline: none;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
+    input[type=range] { width: 100%; height: 6px; border-radius: 5px; background: rgba(255, 255, 255, 0.1); outline: none; accent-color: var(--accent); cursor: pointer; }
 
-    .vibe-box {
-      background: rgba(168, 85, 247, 0.04);
-      border: 1px solid rgba(168, 85, 247, 0.15);
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 20px;
-    }
-
+    .vibe-box { background: rgba(168, 85, 247, 0.04); border: 1px solid rgba(168, 85, 247, 0.15); border-radius: 16px; padding: 18px; margin-bottom: 20px; }
     .tags-box { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tag-btn {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      color: #a1a1aa;
-      padding: 8px 14px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+    
+    .tag-btn { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--card-border); color: #a1a1aa; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; }
     .tag-btn.active { background: rgba(168, 85, 247, 0.2); border-color: var(--accent); color: #fff; box-shadow: 0 0 10px var(--accent-glow); }
 
     .score-sidebar { text-align: center; display: flex; flex-direction: column; justify-content: space-between; min-height: 380px; }
     .score-num { font-size: 80px; font-weight: 900; color: var(--accent); text-shadow: 0 0 35px var(--accent-glow); }
 
     .btn-main {
-      background: linear-gradient(135deg, #a855f7, #6b21a8);
-      color: #fff;
-      border: none;
-      padding: 14px 24px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      box-shadow: 0 4px 20px var(--accent-glow);
-      transition: 0.3s;
-      text-align: center;
+      background: linear-gradient(135deg, #a855f7, #6b21a8); color: #fff; border: none; padding: 14px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 20px var(--accent-glow); transition: 0.3s; text-align: center;
     }
     .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 25px var(--accent-glow); }
 
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); color: #fff; padding: 12px 20px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.3s;
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+
     .search-bar, .input-field {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      padding: 12px 18px;
-      border-radius: 14px;
-      color: #fff;
-      outline: none;
-      margin-bottom: 20px;
-      transition: 0.3s;
+      width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--card-border); padding: 12px 18px; border-radius: 14px; color: #fff; outline: none; margin-bottom: 20px; transition: 0.3s;
     }
     .search-bar:focus, .input-field:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
 
-    /* Элемент списка релизов */
+    /* Элементы списков */
     .release-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 16px 20px;
-      margin-bottom: 12px;
-      transition: 0.3s;
+      display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 20px; margin-bottom: 12px; transition: 0.3s;
     }
-    .release-card:hover { border-color: var(--accent); background: rgba(168, 85, 247, 0.05); transform: translateX(4px); }
+    .release-card:hover { border-color: var(--accent); background: rgba(168, 85, 247, 0.05); }
+    .release-card.demo-card:hover { border-color: var(--demo-accent); background: rgba(6, 182, 212, 0.05); }
+
     .release-info-box { display: flex; align-items: center; gap: 16px; }
-    .release-cover { width: 54px; height: 54px; border-radius: 12px; background: linear-gradient(135deg, #2e1065, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .release-cover { width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, #2e1065, #a855f7); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .release-cover.demo-cover { background: linear-gradient(135deg, #083344, #06b6d4); }
     .release-title { font-weight: 700; font-size: 16px; color: #fff; }
     .release-artist { font-size: 13px; color: var(--text-sub); }
     .release-badges { display: flex; gap: 6px; margin-top: 4px; }
     .mini-badge { font-size: 10px; background: rgba(168,85,247,0.2); border: 1px solid var(--accent); color: #fff; padding: 2px 6px; border-radius: 6px; }
+    .mini-badge.demo-tag { background: rgba(6,182,212,0.2); border-color: var(--demo-accent); }
+    
+    .release-actions { display: flex; align-items: center; gap: 16px; }
     .release-score { font-size: 26px; font-weight: 900; color: var(--accent); text-shadow: 0 0 10px var(--accent-glow); }
+    .release-score.demo-score-val { color: var(--demo-accent); text-shadow: 0 0 10px var(--demo-glow); }
 
-    /* Таблица Чарта */
+    .action-btn {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-sub); width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 14px;
+    }
+    .action-btn:hover { color: #fff; border-color: var(--accent); background: rgba(168,85,247,0.2); }
+    .action-btn.del:hover { color: #fff; border-color: var(--danger); background: rgba(239, 68, 68, 0.2); }
+
     .chart-rank { font-size: 22px; font-weight: 900; color: var(--text-sub); width: 35px; }
     .chart-rank.top-1 { color: #eab308; }
     .chart-rank.top-2 { color: #94a3b8; }
     .chart-rank.top-3 { color: #b45309; }
 
-    /* Модалка обратной связи */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(8px);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-    }
+    .chart-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+
+    /* Модальные окна */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
-    .modal {
-      background: #120f1a;
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 30px;
-      width: 100%;
-      max-width: 480px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-    }
+    .modal { background: #120f1a; border: 1px solid var(--card-border); border-radius: 20px; padding: 28px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.9); }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
   </style>
@@ -331,53 +219,54 @@
       <button id="nav-home" class="active" onclick="navTo('home')">ГЛАВНАЯ</button>
       <button id="nav-rate" onclick="navTo('rate')">ОЦЕНИТЬ</button>
       <button id="nav-releases" onclick="navTo('releases')">РЕЛИЗЫ</button>
-      <button id="nav-chart" onclick="navTo('chart')">ЧАРТ</button>
       <button id="nav-demo" onclick="navTo('demo')">ДЕМО</button>
-      <button id="nav-albums" class="badge-lock" onclick="navTo('albums')">АЛЬБОМЫ 🔒</button>
+      <button id="nav-chart" onclick="navTo('chart')">ЧАРТ</button>
     </nav>
 
     <div class="header-right">
-      <button class="btn-feedback" onclick="toggleModal(true)">✏️ Обратная связь</button>
+      <button class="btn-feedback" onclick="toggleModal('modal-feedback', true)">✏️ Обратная связь</button>
       
       <div class="avatar-btn" onclick="toggleProfileMenu()">
         <img src="https://api.dicebear.com/7.x/identicon/svg?seed=deadgothangel" alt="Avatar">
       </div>
 
-      <!-- Выпадающее меню профиля -->
       <div class="profile-dropdown" id="profile-menu">
         <div class="user-header">
           <img src="https://api.dicebear.com/7.x/identicon/svg?seed=deadgothangel" class="user-avatar">
           <div>
             <div class="user-name">deadgothangel</div>
-            <div class="user-badge">Эксперт DGA</div>
+            <div class="user-badge">Студия критики</div>
           </div>
         </div>
         <div class="menu-divider"></div>
-        <div class="menu-item" onclick="navTo('profile')">👤 Моя страница</div>
-        <div class="menu-item" onclick="navTo('releases')">🤍 Мне понравилось</div>
-        <div class="menu-item" onclick="alert('Настройки профиля пока недоступны')">⚙️ Настройки профиля</div>
+        <div class="menu-item" onclick="navTo('profile')">👤 Мой профиль</div>
+        <div class="menu-item" onclick="alert('Настройки профиля')">⚙️ Настройки</div>
         <div class="menu-divider"></div>
-        <div class="menu-item" style="color: #ef4444;" onclick="alert('Вы вышли из профиля')">🚪 Выйти из профиля</div>
+        <div class="menu-item" style="color: var(--danger);" onclick="alert('Выход')">🚪 Выйти</div>
       </div>
     </div>
   </header>
 
   <div class="container">
 
-    <!-- 1. ГЛАВНАЯ СТРАНИЦА -->
+    <!-- 1. ГЛАВНАЯ -->
     <div id="page-home" class="page active">
       <div class="hero">
         <div>
-          <h1 class="hero-h1">DGA SOUND PLATFORM</h1>
-          <p class="hero-p">Единая оценочная система, аналитика музыкальных релизов и чарты в реальном времени.</p>
+          <h1 class="hero-h1">DGA SOUND STUDIO</h1>
+          <p class="hero-p">Персональная система разбора релизов и демо-записей.</p>
           <button class="btn-main" onclick="navTo('rate')">⚡ Оценить новый трек</button>
         </div>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-val" id="stat-total-count">0</div>
-          <div class="stat-lbl">Всего оценено треков</div>
+          <div class="stat-val" id="stat-releases-count">0</div>
+          <div class="stat-lbl">Официальных релизов</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-demos-count" style="color: var(--demo-accent);">0</div>
+          <div class="stat-lbl">Оцененных демо</div>
         </div>
         <div class="stat-card">
           <div class="stat-val" id="stat-avg-score">0.0</div>
@@ -385,78 +274,77 @@
         </div>
         <div class="stat-card">
           <div class="stat-val" id="stat-top-score" style="color: #eab308;">-</div>
-          <div class="stat-lbl">Лучший трек месяца</div>
+          <div class="stat-lbl">Топ релиз</div>
         </div>
       </div>
 
       <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h2 style="font-size: 18px; font-weight: 800;">Последние оценки</h2>
-          <button class="tag-btn" onclick="navTo('releases')">Смотреть все →</button>
-        </div>
+        <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">Последние разборы</h2>
         <div id="home-recent-list"></div>
       </div>
     </div>
 
-    <!-- 2. СТРАНИЦА ОЦЕНКИ (КАЛЬКУЛЯТОР) -->
+    <!-- 2. СТРАНИЦА ОЦЕНКИ -->
     <div id="page-rate" class="page">
       <div class="calc-layout">
         <div>
           <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-              <h2 style="font-size: 18px; font-weight: 800;">Калькулятор оценки трека</h2>
-              <button class="tag-btn" onclick="toggleStreamMode()">📺 Стрим-мод</button>
+            <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">Категория разбора</h2>
+            
+            <div class="type-selector">
+              <button class="type-btn active-release" id="type-release-btn" onclick="setTrackType('release')">🎵 Официальный релиз</button>
+              <button class="type-btn" id="type-demo-btn" onclick="setTrackType('demo')">🧪 Демо-запись</button>
             </div>
 
             <div style="margin-bottom: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-              <input type="text" id="track-artist" placeholder="Исполнитель" class="input-field" style="margin: 0;">
-              <input type="text" id="track-title" placeholder="Название трека" class="input-field" style="margin: 0;">
+              <input type="text" id="track-artist" placeholder="Исполнитель / Артист" class="input-field" style="margin: 0;">
+              <input type="text" id="track-title" placeholder="Название трека / Демо" class="input-field" style="margin: 0;">
             </div>
 
             <div class="grid-2">
               <div class="slider-group">
                 <div class="slider-header">
-                  <span class="criterion-title" onclick="toggleAnnot('a1')">Рифмы / Образы <span class="info-icon">ⓘ</span></span>
+                  <span class="criterion-title" onclick="toggleAnnot('a1')">Рифмы / Образы <span style="font-size: 12px; opacity:0.7;">ⓘ</span></span>
                   <span class="val-tag" id="v1">5.0</span>
                 </div>
-                <div class="annotation-box" id="a1">Сложность рифмовки, поэтические обороты и смысловая нагрузка.</div>
+                <div class="annotation-box" id="a1">Оценка сложности рифмовки, концепта и смысловой нагрузки.</div>
                 <input type="range" id="r1" min="0" max="10" step="0.5" value="5" oninput="calc()">
               </div>
 
               <div class="slider-group">
                 <div class="slider-header">
-                  <span class="criterion-title" onclick="toggleAnnot('a2')">Структура / Ритмика <span class="info-icon">ⓘ</span></span>
+                  <span class="criterion-title" onclick="toggleAnnot('a2')">Структура / Ритмика <span style="font-size: 12px; opacity:0.7;">ⓘ</span></span>
                   <span class="val-tag" id="v2">5.0</span>
                 </div>
-                <div class="annotation-box" id="a2">Разнообразие флоу, хронометраж и переходы между частями.</div>
+                <div class="annotation-box" id="a2">Разнообразие флоу, хронометраж и сменяемость ритма.</div>
                 <input type="range" id="r2" min="0" max="10" step="0.5" value="5" oninput="calc()">
               </div>
 
               <div class="slider-group">
                 <div class="slider-header">
-                  <span class="criterion-title" onclick="toggleAnnot('a3')">Реализация стиля <span class="info-icon">ⓘ</span></span>
+                  <span class="criterion-title" onclick="toggleAnnot('a3')">Реализация стиля <span style="font-size: 12px; opacity:0.7;">ⓘ</span></span>
                   <span class="val-tag" id="v3">5.0</span>
                 </div>
-                <div class="annotation-box" id="a3">Сведение, мастеринг, техничность и попадание в жанр.</div>
+                <div class="annotation-box" id="a3">Качество капы, сведение, работа с битом и техничность.</div>
                 <input type="range" id="r3" min="0" max="10" step="0.5" value="5" oninput="calc()">
               </div>
 
               <div class="slider-group">
                 <div class="slider-header">
-                  <span class="criterion-title" onclick="toggleAnnot('a4')">Индивидуальность / Харизма <span class="info-icon">ⓘ</span></span>
+                  <span class="criterion-title" onclick="toggleAnnot('a4')">Индивидуальность / Харизма <span style="font-size: 12px; opacity:0.7;">ⓘ</span></span>
                   <span class="val-tag" id="v4">5.0</span>
                 </div>
-                <div class="annotation-box" id="a4">Узнаваемость тембра и погружение артиста в эмоции.</div>
+                <div class="annotation-box" id="a4">Узнаваемость артиста, погружение и эмоциональная отдача.</div>
                 <input type="range" id="r4" min="0" max="10" step="0.5" value="5" oninput="calc()">
               </div>
             </div>
 
             <div class="vibe-box slider-group">
               <div class="slider-header">
-                <span class="criterion-title" onclick="toggleAnnot('a5')">Атмосфера / Вайб <span class="info-icon">ⓘ</span></span>
+                <span class="criterion-title" onclick="toggleAnnot('a5')">Атмосфера / Вайб <span style="font-size: 12px; opacity:0.7;">ⓘ</span></span>
                 <span class="val-tag" id="v5">2.50</span>
               </div>
-              <div class="annotation-box" id="a5">Субъективное восприятие трека и эмоции от прослушивания.</div>
+              <div class="annotation-box" id="a5">Субъективный вайб и общее впечатление от работы.</div>
               <input type="range" id="r5" min="0" max="5" step="0.25" value="2.5" oninput="calc()">
             </div>
 
@@ -464,6 +352,7 @@
               <div class="tags-box">
                 <button class="tag-btn" id="btn-tag-track" onclick="this.classList.toggle('active')">🏆 Трек месяца</button>
                 <button class="tag-btn" id="btn-tag-cover" onclick="this.classList.toggle('active')">🎨 Обложка месяца</button>
+                <button class="tag-btn" id="btn-tag-potential" onclick="this.classList.toggle('active')">🔥 Большой потенциал</button>
               </div>
               <label style="font-size: 13px; color: #aaa; cursor: pointer; display: flex; align-items: center; gap: 6px;">
                 <input type="checkbox" id="disqual" onchange="toggleDisqual()"> 🚫 Дисквал
@@ -479,7 +368,7 @@
             <div style="font-size: 13px; color: #71717a;">из 100</div>
           </div>
 
-          <button class="btn-main" style="width: 100%;" onclick="saveEvaluation()">Опубликовать оценку</button>
+          <button class="btn-main" style="width: 100%;" id="save-btn" onclick="saveEvaluation()">Опубликовать оценку</button>
         </div>
       </div>
     </div>
@@ -487,55 +376,43 @@
     <!-- 3. СТРАНИЦА РЕЛИЗОВ -->
     <div id="page-releases" class="page">
       <div class="card">
-        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">База оцененных релизов</h2>
-        <input type="text" id="releases-search" class="search-bar" placeholder="Поиск по артисту или треку..." oninput="renderReleases()">
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">🎵 База официальных релизов</h2>
+        <input type="text" id="releases-search" class="search-bar" placeholder="Поиск по релизам..." oninput="renderReleases()">
         <div id="releases-list"></div>
       </div>
     </div>
 
-    <!-- 4. СТРАНИЦА ЧАРТА -->
+    <!-- 4. СТРАНИЦА ДЕМО -->
+    <div id="page-demo" class="page">
+      <div class="card">
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px; color: var(--demo-accent);">🧪 База оцененных Демо-записей</h2>
+        <input type="text" id="demo-search" class="search-bar" placeholder="Поиск по демо-трекам..." oninput="renderDemos()">
+        <div id="demos-list"></div>
+      </div>
+    </div>
+
+    <!-- 5. СТРАНИЦА ЧАРТА -->
     <div id="page-chart" class="page">
       <div class="card">
-        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Официальный Чарт DGA SOUND</h2>
-        <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 20px;">Рейтинг лучших релизов, отсортированный по итоговому баллу.</p>
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">Рейтинг и Чарты</h2>
+        
+        <div class="chart-tabs">
+          <button class="tag-btn active" id="chart-tab-release" onclick="switchChartTab('release')">🎵 Чарт релизов</button>
+          <button class="tag-btn" id="chart-tab-demo" onclick="switchChartTab('demo')">🧪 Чарт демо-записей</button>
+        </div>
+
         <div id="chart-list"></div>
       </div>
     </div>
 
-    <!-- 5. СТРАНИЦА ДЕМО -->
-    <div id="page-demo" class="page">
-      <div class="card" style="max-width: 600px; margin: 0 auto;">
-        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Отправить демо-трек</h2>
-        <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 20px;">Присылай свой трек на разбор и попадание в базу DGA SOUND.</p>
-        
-        <input type="text" class="input-field" placeholder="Ваш псевдоним">
-        <input type="text" class="input-field" placeholder="Ссылка на трек (SoundCloud, Yandex, VK)">
-        <textarea class="input-field" style="height: 100px; resize: none;" placeholder="Комментарий или пожелание к разбору..."></textarea>
-        <button class="btn-main" style="width: 100%;" onclick="alert('Демо успешно отправлено!'); navTo('home');">Отправить на рецензию</button>
-      </div>
-    </div>
-
-    <!-- 6. СТРАНИЦА АЛЬБОМОВ (ЗАБЛОКИРОВАНА) -->
-    <div id="page-albums" class="page">
-      <div class="card" style="text-align: center; padding: 60px 20px;">
-        <div style="font-size: 48px; margin-bottom: 16px;">🔒</div>
-        <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 8px;">Раздел «Альбомы» заблокирован</h2>
-        <p style="color: var(--text-sub); font-size: 14px; max-width: 400px; margin: 0 auto 20px auto;">Этот раздел откроется автоматически при достижении 500 подписчиков на платформе.</p>
-        <div style="background: rgba(255,255,255,0.05); height: 10px; border-radius: 5px; max-width: 300px; margin: 0 auto 10px auto; overflow: hidden;">
-          <div style="background: var(--accent); width: 28%; height: 100%;"></div>
-        </div>
-        <div style="font-size: 12px; color: var(--accent); font-weight: 700;">143 / 500 подписчиков</div>
-      </div>
-    </div>
-
-    <!-- 7. СТРАНИЦА ПРОФИЛЯ -->
+    <!-- 6. ПРОФИЛЬ -->
     <div id="page-profile" class="page">
       <div class="card">
-        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 20px;">
           <img src="https://api.dicebear.com/7.x/identicon/svg?seed=deadgothangel" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent);">
           <div>
             <h2 style="font-size: 22px; font-weight: 800;">deadgothangel</h2>
-            <p style="color: var(--text-sub); font-size: 14px;">Музыкальный критик & Создатель DGA SOUND</p>
+            <p style="color: var(--text-sub); font-size: 14px;">Владелец платформы DGA SOUND</p>
           </div>
         </div>
       </div>
@@ -543,40 +420,130 @@
 
   </div>
 
-  <!-- Модальное окно Обратной связи -->
+  <!-- Модалка редактирования трека -->
+  <div class="modal-overlay" id="modal-edit">
+    <div class="modal">
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">✏️ Редактирование записи</h3>
+      <input type="hidden" id="edit-id">
+
+      <label style="font-size: 12px; color: var(--text-sub);">Тип записи</label>
+      <div class="type-selector" style="margin-top: 4px; margin-bottom: 14px;">
+        <button class="type-btn" id="edit-type-release" onclick="setEditType('release')">🎵 Релиз</button>
+        <button class="type-btn" id="edit-type-demo" onclick="setEditType('demo')">🧪 Демо</button>
+      </div>
+
+      <label style="font-size: 12px; color: var(--text-sub);">Исполнитель</label>
+      <input type="text" id="edit-artist" class="input-field" style="margin-top: 4px; margin-bottom: 12px;">
+
+      <label style="font-size: 12px; color: var(--text-sub);">Название трека</label>
+      <input type="text" id="edit-title" class="input-field" style="margin-top: 4px; margin-bottom: 16px;">
+
+      <!-- Слайдеры показателей -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+        <div>
+          <div style="font-size: 12px; display:flex; justify-content:space-between;"><span>Рифмы</span><b id="ev1">5.0</b></div>
+          <input type="range" id="er1" min="0" max="10" step="0.5" oninput="calcEdit()">
+        </div>
+        <div>
+          <div style="font-size: 12px; display:flex; justify-content:space-between;"><span>Структура</span><b id="ev2">5.0</b></div>
+          <input type="range" id="er2" min="0" max="10" step="0.5" oninput="calcEdit()">
+        </div>
+        <div>
+          <div style="font-size: 12px; display:flex; justify-content:space-between;"><span>Реализация</span><b id="ev3">5.0</b></div>
+          <input type="range" id="er3" min="0" max="10" step="0.5" oninput="calcEdit()">
+        </div>
+        <div>
+          <div style="font-size: 12px; display:flex; justify-content:space-between;"><span>Харизма</span><b id="ev4">5.0</b></div>
+          <input type="range" id="er4" min="0" max="10" step="0.5" oninput="calcEdit()">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; display:flex; justify-content:space-between;"><span>Атмосфера / Вайб</span><b id="ev5">2.50</b></div>
+        <input type="range" id="er5" min="0" max="5" step="0.25" oninput="calcEdit()">
+      </div>
+
+      <div style="text-align: center; margin-bottom: 16px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px;">
+        <span style="font-size: 12px; color: var(--text-sub);">Пересчитанный балл:</span>
+        <div style="font-size: 28px; font-weight: 900; color: var(--accent);" id="edit-total">50.0</div>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn-secondary" onclick="toggleModal('modal-edit', false)">Отмена</button>
+        <button class="btn-main" onclick="saveEditedTrack()">Сохранить изменения</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка обратной связи -->
   <div class="modal-overlay" id="modal-feedback">
     <div class="modal">
-      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 12px;">Обратная связь</h3>
-      <p style="color: var(--text-sub); font-size: 13px; margin-bottom: 16px;">Нашли баг или есть предложение по улучшению платформы?</p>
-      <textarea class="input-field" style="height: 120px; resize: none;" placeholder="Ваше сообщение..."></textarea>
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 12px;">Заметки и связь</h3>
+      <textarea class="input-field" style="height: 120px; resize: none;" placeholder="Ваша заметка..."></textarea>
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button class="tag-btn" onclick="toggleModal(false)">Отмена</button>
-        <button class="btn-main" onclick="alert('Спасибо за отзыв!'); toggleModal(false);">Отправить</button>
+        <button class="btn-secondary" onclick="toggleModal('modal-feedback', false)">Отмена</button>
+        <button class="btn-main" onclick="alert('Заметка сохранена'); toggleModal('modal-feedback', false);">Сохранить</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Инициализация базы данных в localStorage
+    let currentCategory = 'release';
+    let editCategory = 'release';
+    let activeChartTab = 'release';
+
     const DEFAULT_TRACKS = [
-      { id: 1, artist: 'deadgothangel', title: 'Sylex', score: 90.0, r1: 10, r2: 9, r3: 9, r4: 9, r5: 4.5, tags: ['🏆 Трек месяца'] },
-      { id: 2, artist: 'Huzzy B', title: 'Night Drive', score: 84.0, r1: 8, r2: 8.5, r3: 8.5, r4: 9, r5: 4, tags: ['🎨 Обложка месяца'] }
+      { id: 1, type: 'release', artist: 'deadgothangel', title: 'Ritual', score: 100.0, tags: ['🏆 Трек месяца'], r: [10, 10, 10, 10, 5] },
+      { id: 2, type: 'release', artist: 'deadgothangel', title: 'Sylex', score: 90.0, tags: ['🏆 Трек месяца'], r: [9, 9, 9, 9, 4.5] },
+      { id: 3, type: 'release', artist: 'Huzzy B', title: 'Night Drive', score: 84.0, tags: ['🔥 Большой потенциал'], r: [8.5, 8, 8.5, 8, 4.5] },
+      { id: 4, type: 'demo', artist: 'deadgothangel', title: 'Demo #1 (Unreleased)', score: 78.5, tags: ['🔥 Большой потенциал'], r: [8, 7.5, 8, 8, 3.75] }
     ];
 
     function getStoredTracks() {
-      const data = localStorage.getItem('dga_tracks');
+      const data = localStorage.getItem('dga_tracks_v3');
       if (!data) {
-        localStorage.setItem('dga_tracks', JSON.stringify(DEFAULT_TRACKS));
+        localStorage.setItem('dga_tracks_v3', JSON.stringify(DEFAULT_TRACKS));
         return DEFAULT_TRACKS;
       }
       return JSON.parse(data);
     }
 
     function saveStoredTracks(tracks) {
-      localStorage.setItem('dga_tracks', JSON.stringify(tracks));
+      localStorage.setItem('dga_tracks_v3', JSON.stringify(tracks));
+      updateHomeStats();
     }
 
-    // Переключение страниц
+    function setTrackType(type) {
+      currentCategory = type;
+      const relBtn = document.getElementById('type-release-btn');
+      const demoBtn = document.getElementById('type-demo-btn');
+      const saveBtn = document.getElementById('save-btn');
+
+      if (type === 'release') {
+        relBtn.className = 'type-btn active-release';
+        demoBtn.className = 'type-btn';
+        saveBtn.style.background = 'linear-gradient(135deg, #a855f7, #6b21a8)';
+      } else {
+        relBtn.className = 'type-btn';
+        demoBtn.className = 'type-btn active-demo';
+        saveBtn.style.background = 'linear-gradient(135deg, #06b6d4, #0e7490)';
+      }
+    }
+
+    function setEditType(type) {
+      editCategory = type;
+      const relBtn = document.getElementById('edit-type-release');
+      const demoBtn = document.getElementById('edit-type-demo');
+
+      if (type === 'release') {
+        relBtn.className = 'type-btn active-release';
+        demoBtn.className = 'type-btn';
+      } else {
+        relBtn.className = 'type-btn';
+        demoBtn.className = 'type-btn active-demo';
+      }
+    }
+
     function navTo(pageId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -589,31 +556,16 @@
 
       document.getElementById('profile-menu').classList.remove('active');
 
-      // Обновляем данные на страницах
       if (pageId === 'home') updateHomeStats();
       if (pageId === 'releases') renderReleases();
+      if (pageId === 'demo') renderDemos();
       if (pageId === 'chart') renderChart();
     }
 
-    function toggleProfileMenu() {
-      document.getElementById('profile-menu').classList.toggle('active');
-    }
+    function toggleProfileMenu() { document.getElementById('profile-menu').classList.toggle('active'); }
+    function toggleModal(id, show) { document.getElementById(id).classList.toggle('active', show); }
+    function toggleAnnot(id) { document.getElementById(id).classList.toggle('active'); }
 
-    function toggleModal(show) {
-      const modal = document.getElementById('modal-feedback');
-      if (show) modal.classList.add('active');
-      else modal.classList.remove('active');
-    }
-
-    function toggleAnnot(id) {
-      document.getElementById(id).classList.toggle('active');
-    }
-
-    function toggleStreamMode() {
-      document.body.classList.toggle('stream-mode');
-    }
-
-    // Расчет калькулятора
     function calc() {
       let r1 = parseFloat(document.getElementById('r1').value);
       let r2 = parseFloat(document.getElementById('r2').value);
@@ -631,98 +583,214 @@
       document.getElementById('total').innerText = total.toFixed(1);
     }
 
-    function toggleDisqual() {
-      let isDisq = document.getElementById('disqual').checked;
-      if (isDisq) {
-        document.getElementById('total').innerText = "0.0";
-      } else {
-        calc();
-      }
+    function calcEdit() {
+      let r1 = parseFloat(document.getElementById('er1').value);
+      let r2 = parseFloat(document.getElementById('er2').value);
+      let r3 = parseFloat(document.getElementById('er3').value);
+      let r4 = parseFloat(document.getElementById('er4').value);
+      let r5 = parseFloat(document.getElementById('er5').value);
+
+      document.getElementById('ev1').innerText = r1.toFixed(1);
+      document.getElementById('ev2').innerText = r2.toFixed(1);
+      document.getElementById('ev3').innerText = r3.toFixed(1);
+      document.getElementById('ev4').innerText = r4.toFixed(1);
+      document.getElementById('ev5').innerText = r5.toFixed(2);
+
+      let total = (r1 * 2) + (r2 * 2) + (r3 * 2) + (r4 * 2) + (r5 * 4);
+      document.getElementById('edit-total').innerText = total.toFixed(1);
     }
 
-    // Сохранение оценки в память
+    function toggleDisqual() {
+      let isDisq = document.getElementById('disqual').checked;
+      if (isDisq) document.getElementById('total').innerText = "0.0";
+      else calc();
+    }
+
     function saveEvaluation() {
       const artist = document.getElementById('track-artist').value.trim();
       const title = document.getElementById('track-title').value.trim();
 
       if (!artist || !title) {
-        alert('Пожалуйста, укажите исполнителя и название трека!');
+        alert('Заполните исполнителя и название трека!');
         return;
       }
 
       const isDisq = document.getElementById('disqual').checked;
       const score = isDisq ? 0.0 : parseFloat(document.getElementById('total').innerText);
 
+      const r1 = parseFloat(document.getElementById('r1').value);
+      const r2 = parseFloat(document.getElementById('r2').value);
+      const r3 = parseFloat(document.getElementById('r3').value);
+      const r4 = parseFloat(document.getElementById('r4').value);
+      const r5 = parseFloat(document.getElementById('r5').value);
+
       const tags = [];
       if (document.getElementById('btn-tag-track').classList.contains('active')) tags.push('🏆 Трек месяца');
       if (document.getElementById('btn-tag-cover').classList.contains('active')) tags.push('🎨 Обложка месяца');
+      if (document.getElementById('btn-tag-potential').classList.contains('active')) tags.push('🔥 Большой потенциал');
 
       const newTrack = {
         id: Date.now(),
+        type: currentCategory,
         artist,
         title,
         score,
-        r1: parseFloat(document.getElementById('r1').value),
-        r2: parseFloat(document.getElementById('r2').value),
-        r3: parseFloat(document.getElementById('r3').value),
-        r4: parseFloat(document.getElementById('r4').value),
-        r5: parseFloat(document.getElementById('r5').value),
-        tags
+        tags,
+        r: [r1, r2, r3, r4, r5]
       };
 
       const tracks = getStoredTracks();
       tracks.unshift(newTrack);
       saveStoredTracks(tracks);
 
-      // Сброс полей
       document.getElementById('track-artist').value = '';
       document.getElementById('track-title').value = '';
-      alert(`Оценка для "${artist} — ${title}" успешно опубликована!`);
+      alert(`Оценка сохранена в ${currentCategory === 'release' ? 'Релизы' : 'Демо'}!`);
 
-      navTo('releases');
+      navTo(currentCategory === 'release' ? 'releases' : 'demo');
     }
 
-    // Отрисовка главной
+    /* Удаление трека */
+    function deleteTrack(id) {
+      const tracks = getStoredTracks();
+      const track = tracks.find(t => t.id === id);
+      if (!track) return;
+
+      if (confirm(`Удалить "${track.artist} — ${track.title}" из базы?`)) {
+        const updated = tracks.filter(t => t.id !== id);
+        saveStoredTracks(updated);
+        renderReleases();
+        renderDemos();
+        renderChart();
+      }
+    }
+
+    /* Открытие окна редактирования */
+    function openEditModal(id) {
+      const tracks = getStoredTracks();
+      const track = tracks.find(t => t.id === id);
+      if (!track) return;
+
+      document.getElementById('edit-id').value = track.id;
+      document.getElementById('edit-artist').value = track.artist;
+      document.getElementById('edit-title').value = track.title;
+
+      setEditType(track.type || 'release');
+
+      const r = track.r || [5, 5, 5, 5, 2.5];
+      document.getElementById('er1').value = r[0];
+      document.getElementById('er2').value = r[1];
+      document.getElementById('er3').value = r[2];
+      document.getElementById('er4').value = r[3];
+      document.getElementById('er5').value = r[4];
+
+      calcEdit();
+      toggleModal('modal-edit', true);
+    }
+
+    /* Сохранение отредактированного трека */
+    function saveEditedTrack() {
+      const id = parseInt(document.getElementById('edit-id').value);
+      const artist = document.getElementById('edit-artist').value.trim();
+      const title = document.getElementById('edit-title').value.trim();
+
+      if (!artist || !title) {
+        alert('Заполните исполнителя и название!');
+        return;
+      }
+
+      const r1 = parseFloat(document.getElementById('er1').value);
+      const r2 = parseFloat(document.getElementById('er2').value);
+      const r3 = parseFloat(document.getElementById('er3').value);
+      const r4 = parseFloat(document.getElementById('er4').value);
+      const r5 = parseFloat(document.getElementById('er5').value);
+      const score = parseFloat(document.getElementById('edit-total').innerText);
+
+      const tracks = getStoredTracks();
+      const trackIndex = tracks.findIndex(t => t.id === id);
+
+      if (trackIndex !== -1) {
+        tracks[trackIndex] = {
+          ...tracks[trackIndex],
+          type: editCategory,
+          artist,
+          title,
+          score,
+          r: [r1, r2, r3, r4, r5]
+        };
+
+        saveStoredTracks(tracks);
+        toggleModal('modal-edit', false);
+
+        renderReleases();
+        renderDemos();
+        renderChart();
+      }
+    }
+
     function updateHomeStats() {
       const tracks = getStoredTracks();
-      document.getElementById('stat-total-count').innerText = tracks.length;
+      const releases = tracks.filter(t => t.type === 'release');
+      const demos = tracks.filter(t => t.type === 'demo');
+
+      document.getElementById('stat-releases-count').innerText = releases.length;
+      document.getElementById('stat-demos-count').innerText = demos.length;
 
       if (tracks.length > 0) {
         const avg = tracks.reduce((acc, t) => acc + t.score, 0) / tracks.length;
         document.getElementById('stat-avg-score').innerText = avg.toFixed(1);
 
-        const topTrack = [...tracks].sort((a,b) => b.score - a.score)[0];
-        document.getElementById('stat-top-score').innerText = topTrack ? `${topTrack.score.toFixed(1)}` : '-';
+        const topTrack = [...releases].sort((a,b) => b.score - a.score)[0];
+        document.getElementById('stat-top-score').innerText = topTrack ? topTrack.score.toFixed(1) : '-';
       }
 
       const recentContainer = document.getElementById('home-recent-list');
-      recentContainer.innerHTML = '';
-      tracks.slice(0, 3).forEach(t => {
-        recentContainer.innerHTML += renderTrackCardHTML(t);
-      });
+      recentContainer.innerHTML = tracks.slice(0, 4).map(t => renderCardHTML(t, false)).join('');
     }
 
-    // Отрисовка релизов с поиском
     function renderReleases() {
       const query = (document.getElementById('releases-search')?.value || '').toLowerCase();
-      const tracks = getStoredTracks();
+      const tracks = getStoredTracks().filter(t => t.type === 'release');
       const filtered = tracks.filter(t => t.artist.toLowerCase().includes(query) || t.title.toLowerCase().includes(query));
 
       const container = document.getElementById('releases-list');
       if (filtered.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-sub); padding: 20px 0;">Ничего не найдено...</div>';
+        container.innerHTML = '<div style="color: var(--text-sub); padding: 20px 0;">Релизов не найдено...</div>';
         return;
       }
-
-      container.innerHTML = filtered.map(t => renderTrackCardHTML(t)).join('');
+      container.innerHTML = filtered.map(t => renderCardHTML(t, true)).join('');
     }
 
-    // Отрисовка чарта
+    function renderDemos() {
+      const query = (document.getElementById('demo-search')?.value || '').toLowerCase();
+      const tracks = getStoredTracks().filter(t => t.type === 'demo');
+      const filtered = tracks.filter(t => t.artist.toLowerCase().includes(query) || t.title.toLowerCase().includes(query));
+
+      const container = document.getElementById('demos-list');
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-sub); padding: 20px 0;">Демо-треков не найдено...</div>';
+        return;
+      }
+      container.innerHTML = filtered.map(t => renderCardHTML(t, true)).join('');
+    }
+
+    function switchChartTab(type) {
+      activeChartTab = type;
+      document.getElementById('chart-tab-release').className = `tag-btn ${type === 'release' ? 'active' : ''}`;
+      document.getElementById('chart-tab-demo').className = `tag-btn ${type === 'demo' ? 'active' : ''}`;
+      renderChart();
+    }
+
     function renderChart() {
-      const tracks = getStoredTracks();
+      const tracks = getStoredTracks().filter(t => t.type === activeChartTab);
       const sorted = [...tracks].sort((a,b) => b.score - a.score);
 
       const container = document.getElementById('chart-list');
+      if (sorted.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-sub); padding: 20px 0;">Нет данных для чарта...</div>';
+        return;
+      }
+
       container.innerHTML = sorted.map((t, index) => {
         let rankClass = '';
         if (index === 0) rankClass = 'top-1';
@@ -730,46 +798,58 @@
         if (index === 2) rankClass = 'top-3';
 
         return `
-          <div class="release-card">
+          <div class="release-card ${t.type === 'demo' ? 'demo-card' : ''}">
             <div class="release-info-box">
               <div class="chart-rank ${rankClass}">#${index + 1}</div>
-              <div class="release-cover">🎵</div>
+              <div class="release-cover ${t.type === 'demo' ? 'demo-cover' : ''}">${t.type === 'demo' ? '🧪' : '🎵'}</div>
               <div>
                 <div class="release-title">${t.title}</div>
                 <div class="release-artist">${t.artist}</div>
               </div>
             </div>
-            <div class="release-score">${t.score.toFixed(1)}</div>
+            <div class="release-actions">
+              <div class="release-score ${t.type === 'demo' ? 'demo-score-val' : ''}">${t.score.toFixed(1)}</div>
+              <button class="action-btn" onclick="openEditModal(${t.id})" title="Редактировать">✏️</button>
+              <button class="action-btn del" onclick="deleteTrack(${t.id})" title="Удалить">🗑️</button>
+            </div>
           </div>
         `;
       }).join('');
     }
 
-    function renderTrackCardHTML(t) {
-      const badgesHTML = t.tags.map(tag => `<span class="mini-badge">${tag}</span>`).join('');
+    function renderCardHTML(t, showActions = true) {
+      const isDemo = t.type === 'demo';
+      const badgesHTML = (t.tags || []).map(tag => `<span class="mini-badge ${isDemo ? 'demo-tag' : ''}">${tag}</span>`).join('');
+      
+      const actionsHTML = showActions ? `
+        <button class="action-btn" onclick="openEditModal(${t.id})" title="Редактировать">✏️</button>
+        <button class="action-btn del" onclick="deleteTrack(${t.id})" title="Удалить">🗑️</button>
+      ` : '';
+
       return `
-        <div class="release-card">
+        <div class="release-card ${isDemo ? 'demo-card' : ''}">
           <div class="release-info-box">
-            <div class="release-cover">🎵</div>
+            <div class="release-cover ${isDemo ? 'demo-cover' : ''}">${isDemo ? '🧪' : '🎵'}</div>
             <div>
-              <div class="release-title">${t.title}</div>
+              <div class="release-title">${t.title} <span style="font-size: 11px; opacity: 0.6;">(${isDemo ? 'Демо' : 'Релиз'})</span></div>
               <div class="release-artist">${t.artist}</div>
               <div class="release-badges">${badgesHTML}</div>
             </div>
           </div>
-          <div class="release-score">${t.score.toFixed(1)}</div>
+          <div class="release-actions">
+            <div class="release-score ${isDemo ? 'demo-score-val' : ''}">${t.score.toFixed(1)}</div>
+            ${actionsHTML}
+          </div>
         </div>
       `;
     }
 
-    // Закрытие меню при клике мимо
     window.onclick = function(e) {
       if (!e.target.closest('.header-right')) {
         document.getElementById('profile-menu').classList.remove('active');
       }
     };
 
-    // Стартовая загрузка
     updateHomeStats();
   </script>
 </body>
